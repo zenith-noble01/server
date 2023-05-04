@@ -3,21 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { cloudinary } from "../config/cloudinary.js"
 
-export const getUser = async (req, res) => {
-  try {
-    const { userId } = req.params;
 
-    const user = await User.findById(userId);
-
-    if (!user) {
-      throw new Error("user not found");
-    }
-
-    return res.status(200).send(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
 const createUser = async (req, res) => {
   try {
@@ -157,3 +143,20 @@ const updateUserPassword = async (req, res) => {
 }
 
 
+export const getUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new Error("user not found");
+    }
+
+    const { password, friendRequests, ...others } = user.toObject()
+
+    return res.status(200).send({ user: others });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
