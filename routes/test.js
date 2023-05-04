@@ -119,3 +119,41 @@ const updateUser = async (req, res) => {
     res.status(500).send({ message: error.message });
   }
 };
+
+
+const updateUserPassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body
+    const { userId } = req.user
+    const { userId: id } = req.params
+
+    if (userId !== id) {
+      throw new Error("You can update only your account.")
+    }
+
+    const user = await User.findById(userId)
+
+    if (!user) {
+      throw new Error("User not found.")
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password)
+
+    if (!isValid) {
+      throw new Error("Passwords don't match")
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    user.password = hashedPassword
+
+    await user.save()
+
+    res.status(200).send({ message: "Password updated succefully" })
+
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+}
+
+
