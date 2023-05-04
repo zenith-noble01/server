@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { cloudinary } from "../config/cloudinary.js"
 
 export const getUser = async (req, res) => {
   try {
@@ -79,6 +80,41 @@ const loginUser = async (req, res) => {
     );
 
     res.status(200).send({ token: token, id: user._id });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
+
+const updateUser = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { userId: id } = req.params;
+
+    if (userId !== id) {
+      throw new Error("You can update only your account.")
+    }
+
+    let profileUrl = ""
+
+    if (req.file) {
+      const image = await cloudinary.uploader.upload(req.file.path)
+      profileUrl = image.secure_url
+    }
+
+    const { profilePicture, ...others } = req.body
+
+    const updatedFields = { ...others }
+
+    if (profileUrl) {
+      updatedFields.profileImageUrl = profileUrl
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(id, updatedFields, {
+      new: true,
+    });
+
+    res.status(200).send({ user: updatedUser })
+
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
