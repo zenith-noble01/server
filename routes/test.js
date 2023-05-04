@@ -143,7 +143,7 @@ const updateUserPassword = async (req, res) => {
 }
 
 
-export const getUser = async (req, res) => {
+const getUser = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -160,3 +160,34 @@ export const getUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.user
+    const { userId: id } = req.params
+
+
+    if (userId !== id) {
+      throw new Error("You can delete only your account.")
+    }
+
+    const user = await User.findById(userId)
+
+
+    if (!user) {
+      throw new Error("User not found.")
+    }
+
+    if (userId !== userId) {
+      throw new Error("You can delete only your account.")
+    }
+
+    await User.findByIdAndDelete(userId)
+
+    res.status(200).send({ message: "Account deleted succesfully." })
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
