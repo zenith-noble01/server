@@ -55,7 +55,7 @@ const loginUser = async (req, res) => {
 
     res.status(200).json({
       token,
-      user,
+      id: user._id,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -67,7 +67,9 @@ const updateUser = async (req, res) => {
     const { userId } = req.user;
     const { id } = req.params;
 
-    await findUserById(userId, id);
+    if (userId.toString() !== id) {
+      throw new Error("Can update only your user");
+    }
 
     let profileUrl = "";
 
@@ -102,7 +104,12 @@ const updatePassword = async (req, res) => {
     const { userId } = req.user;
     const { id } = req.params;
 
-    const user = await findUserById(userId, id);
+    if (userId.toString() !== id) {
+      throw new Error("Can update only your user");
+    }
+
+    const user = await User.findById(userId);
+
     const isMatch = await compare(currentPassword, user.password);
 
     if (!isMatch) {
@@ -143,9 +150,9 @@ const sendFriendRequest = async (req, res) => {
     const { id } = req.params; // ID of the recipient user
     const { userId } = req.user; // ID of the sender user
 
-    console.log(userId.toString());
+    console.log(userId);
     // Check if the sender and recipient are the same user
-    if (id === userId.toString()) {
+    if (id === userId) {
       throw new Error("You cannot send a friend request to yourself!");
     }
 
@@ -158,16 +165,14 @@ const sendFriendRequest = async (req, res) => {
     const sender = await User.findById(userId);
 
     // Check if the sender is already friends with the recipient
-    const existingFriend = sender.friends.find(
-      (friend) => friend.user.toString() === id
-    );
+    const existingFriend = sender.friends.find((friend) => friend.user === id);
     if (existingFriend) {
       throw new Error("You already sent a friend request to this user!");
     }
 
     // Check if the sender has already sent a friend request to the recipient
     const existingFriendRequest = sender.friendRequests.find(
-      (friendRequest) => friendRequest.user.toString() === id
+      (friendRequest) => friendRequest.user === id
     );
     if (existingFriendRequest) {
       return res.status(400).send({
@@ -204,7 +209,7 @@ const acceptFriendRequest = async (req, res) => {
 
     // Check if there is a friend request from the sender
     const friendRequest = recipient.friendRequests.find(
-      (friendReq) => friendReq.user.toString() === id
+      (friendReq) => friendReq.user === id
     );
     if (!friendRequest) {
       return res
@@ -214,7 +219,7 @@ const acceptFriendRequest = async (req, res) => {
 
     // Check if the sender is already friends with the recipient
     const existingFriend = recipient.friends.find(
-      (friend) => friend.user.toString() === id
+      (friend) => friend.user === id
     );
     if (existingFriend) {
       return res
@@ -245,7 +250,7 @@ const getAllFriendRequests = async (req, res) => {
   try {
     const { userId } = req.user;
     console.log(userId);
-    /*   const user = await User.findById(userId.toString()).populate({
+    /*   const user = await User.findById(userId).populate({
       path: "friendRequests.user",
       select: "username profile",
     });
@@ -256,7 +261,7 @@ const getAllFriendRequests = async (req, res) => {
     res.status(200).json({ friendRequests: pendingRequests }); */
   } catch (error) {
     // res.status(500).json({ message: error.message });
-    console.log("me");
+    // console.log("me");
   }
 };
 
