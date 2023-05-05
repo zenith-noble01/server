@@ -103,10 +103,10 @@ const commentPost = async (req, res) => {
 
     const { userId: id, content } = req.body;
 
-    // const user = await findUserById(userId, );
+    await findUserById(userId, id);
 
     const post = await checkPost(postId);
-    //   new
+
 
     const newComment = {
       userId,
@@ -175,7 +175,7 @@ const deletePost = async (req, res) => {
 
     const user = await ifUserExist(userId);
 
-    if (post._id !== user._id) {
+    if (post.userId !== user._id) {
       throw new Error("You can only delete you post");
     }
 
