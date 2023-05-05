@@ -4,7 +4,6 @@ import {
   createUser,
   deleteUser,
   getAllFriendRequests,
-  // getAllUsers,
   getUser,
   loginUser,
   sendFriendRequest,
@@ -15,40 +14,31 @@ import { protect } from "../middlewares/authentication.js";
 
 const router = express.Router();
 
-//register route
+// Register user route
 router.post("/register", createUser);
 
-//login route
+// Login user route
 router.post("/login", loginUser);
 
-//updating the user profile or user Data route
+// Update user profile or Data route
 router.put("/:id", protect, updateUser);
 
-//delete user route
+// Delete user route
 router.delete("/:id", protect, deleteUser);
 
-//getUser data route
-router.get("/:userId", getUser);
+// Get user data route
+router.get("/u/:userId", getUser);
 
-//update user password route
+// Update user password route
 router.put("/updatePass/:id", protect, updatePassword);
 
-//get all users route
-// router.get("/all", getAllUsers);
+// Get all friend requests for authenticated user route
+router.get("/friend-request", protect, getAllFriendRequests);
 
-//send a user friend request route
+// Send a friend request to a user route (authenticated)
 router.post("/:id/friend-request", protect, sendFriendRequest);
 
-//acepts user friend request route
+// Accept a friend request route (authenticated)
 router.post("/:id/friend-request/accept", protect, acceptFriendRequest);
-
-//all user friend request route
-router.get("/friend-request", getAllFriendRequests);
-
-router.get("/me", async (req, res) => {
-  try {
-    res.send("this is the route");
-  } catch (error) {}
-});
 
 export default router;

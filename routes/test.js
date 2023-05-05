@@ -191,3 +191,47 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 }
+
+
+const sendFriendRequest = async (req, res) => {
+  try {
+
+    const { userId: senderId } = req.user
+    const { userId: recipientId } = req.params
+
+    if (senderId === recipientId) {
+      throw new Error("You can't send a friend request to yourself.")
+    }
+
+    const sender = await User.findById(senderId)
+    const recipient = await User.findById(recipientId)
+
+    if (!sender) {
+      throw new Error("User not found.")
+    }
+
+    if (!recipient) {
+      throw new Error("User not found.")
+    }
+
+    const existingFriend = sender.friends.find(friend => friend.friendUser === senderId)
+
+    if (existingFriend) {
+      throw new Error("You are already friends with this user")
+    }
+
+    const existingFriendRequest = sender.friendRequests.find(request => request.friendUser === senderId)
+
+    if (existingFriendRequest) {
+      throw new Error("You have already sent a friend request with this user")
+    }
+
+
+
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export { getUser }

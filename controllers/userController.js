@@ -250,17 +250,17 @@ const getAllFriendRequests = async (req, res) => {
   try {
     const { userId } = req.user;
     console.log(userId);
-    /*   const user = await User.findById(userId).populate({
-      path: "friendRequests.user",
+    const user = await User.findById(userId).populate({
+      path: "friendRequests.friendUser",
       select: "username profile",
     });
     const friendRequests = user.friendRequests || []; // Check if friendRequests is not null, otherwise initialize it as an empty array
     const pendingRequests = friendRequests.filter(
-      (request) => !request.approved
+      (request) => !request.isApproved
     );
-    res.status(200).json({ friendRequests: pendingRequests }); */
+    res.status(200).json({ friendRequests: pendingRequests });
   } catch (error) {
-    // res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
     // console.log("me");
   }
 };
