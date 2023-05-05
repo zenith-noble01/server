@@ -5,6 +5,7 @@ import { checkPost } from "../helper/post.js";
 
 //creating a new post
 const createPost = async (req, res) => {
+
   try {
     const { image, content, id } = req.body;
 

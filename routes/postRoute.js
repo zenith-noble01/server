@@ -15,7 +15,7 @@ const router = Router();
 // Route for creating a post
 router.post("/create", protect, createPost);
 
-// Route for getting a post by ID
+// Route for getting a post by ID 
 router.get("/:postId", getPost);
 
 // Route for updating a post by ID

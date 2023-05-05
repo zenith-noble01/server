@@ -19,7 +19,7 @@ const findUserById = async (userId, id) => {
     throw new Error("UserId required");
   }
 
-  if (userId !== id) {
+  if (userId.toString() !== id) {
     throw new Error("User data don't match");
   }
 
