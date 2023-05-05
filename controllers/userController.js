@@ -232,7 +232,7 @@ const acceptFriendRequest = async (req, res) => {
     sender.friends.push({ user: userId });
 
     // Update the friend requests to approved
-    friendRequest.approved = true;
+    friendRequest.isApproved = true;
 
     // Save changes to the sender and recipient documents
     await Promise.all([sender.save(), recipient.save()]);
