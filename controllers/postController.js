@@ -1,8 +1,7 @@
 import Post from "../models/post.js";
 import User from "../models/user.js";
 import { cloudinary } from "../config/cloudinary.js";
-import { protect } from "../middlewares/authentication.js";
-import { checkUser, findUserById, ifUserExist } from "../helper/user.js";
+import { findUserById, ifUserExist } from "../helper/user.js";
 import { checkPost } from "../helper/post.js";
 
 //creating a new post
