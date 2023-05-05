@@ -1,5 +1,4 @@
 import Post from "../models/post.js";
-import User from "../models/user.js";
 import { cloudinary } from "../config/cloudinary.js";
 import { findUserById, ifUserExist } from "../helper/user.js";
 import { checkPost } from "../helper/post.js";
