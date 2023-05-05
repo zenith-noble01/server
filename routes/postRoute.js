@@ -1,5 +1,4 @@
 import { Router } from "express";
-
 import { protect } from "../middlewares/authentication.js";
 import {
   createPost,
@@ -13,25 +12,25 @@ import {
 
 const router = Router();
 
-//create post
+// Route for creating a post
 router.post("/create", protect, createPost);
 
-//getPost route
+// Route for getting a post by ID
 router.get("/:postId", getPost);
 
-//update post
+// Route for updating a post by ID
 router.put("/:postId", protect, updatePost);
 
-//delete post
+// Route for deleting a post by ID
 router.delete("/:postId", protect, deletePost);
 
-// Add a comment to a post by ID
-router.post("/posts/:postId/comments", commentPost);
+// Route for adding a comment to a post by ID
+router.post("/:postId/comments", protect, commentPost);
 
-// Like a post by ID
-router.post("/posts/:postId/likes", likePost);
+// Route for liking a post by ID
+router.post("/:postId/likes", protect, likePost);
 
-// Dislike a post by ID
-router.post("/posts/:postId/dislikes", disLikePost);
+// Route for disliking a post by ID
+router.post("/:postId/dislikes", protect, disLikePost);
 
 export default router;
