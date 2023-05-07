@@ -165,6 +165,25 @@ const disLikePost = async (req, res) => {
   }
 };
 
+//get user timeline post
+
+const getUserTimelinePosts = async (req, res) => {
+  try {
+    const { userId } = req.user
+
+    const user = await ifUserExist(userId)
+
+    const friendsIds = user.friends.map((friend) => friend.friendUser)
+
+    const posts = await Post.find({ userId: { $in: [...friendsIds, user._id] } }).sort({ createdAt: -1 })
+
+    res.status(200).send(posts)
+
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+}
+
 //creating a new post
 const deletePost = async (req, res) => {
   try {
@@ -187,6 +206,8 @@ const deletePost = async (req, res) => {
   }
 };
 
+
+
 //exportting
 export {
   createPost,
@@ -196,4 +217,38 @@ export {
   likePost,
   disLikePost,
   deletePost,
+  getUserTimelinePosts
+};
+
+
+//get posts based on friends and most liked posts
+const getPostsByFriends = async (req, res) => { //defining a function to handle GET requests to get posts based on friends and most liked posts
+  try { //starting a try/catch block to handle errors
+    const { userId } = req.user; //extracting userId from the request user object
+
+    const user = await User.findById(userId); //finding the user by their id
+
+    if (!user) { //checking if the user exists
+      throw new Error("User not found."); //throwing an error if the user doesn't exist
+    }
+
+    let friends = user.friends; //getting the user's friends array
+
+    if (friends.length > 100) { //checking if the user has more than 100 friends
+      friends = friends.slice(0, 100); //keeping only the first 100 friends
+    }
+
+    const posts = await Post.find({ //finding posts by user's friends and most liked posts
+      $or: [
+        { userId: { $in: friends } }, //finding posts created by user's friends
+        { likes: { $gt: 0 } }, //finding posts with likes greater than 0
+      ],
+    })
+      .sort({ likes: -1 }) //sorting posts by most likes
+      .limit(20); //limiting the number of posts to 20
+
+    res.status(200).send(posts); //sending a success response with the posts array
+  } catch (error) { //handling errors
+    return res.status(500).send({ message: error.message }); //sending an error response with the error message
+  }
 };
