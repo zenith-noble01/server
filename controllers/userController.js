@@ -147,103 +147,96 @@ const getUser = async (req, res) => {
 
 const sendFriendRequest = async (req, res) => {
   try {
-    const { id } = req.params; // ID of the recipient user
-    const { userId } = req.user; // ID of the sender user
+    const { id } = req.params //Id of the recipient user
+    const { userId } = req.user//id of the sender user
 
-    console.log(userId);
-    // Check if the sender and recipient are the same user
-    if (id === userId) {
-      throw new Error("You cannot send a friend request to yourself!");
+    //check if the send and recipient are the same user
+    if (userId.toString() === id) {
+      throw new Error("You cant send a friend request to yourself")
     }
 
-    // Check if the recipient user exists
-    const recipient = await User.findById(id);
+    //checking if the recipient user exist
+    const recipient = await User.findById(id)
+
     if (!recipient) {
-      throw new Error("The recipient user does not exist!");
+      throw new Error("the recipient user not found")
     }
 
-    const sender = await User.findById(userId);
+    //checking if the sender use exists
+    const sender = await User.findById(userId)
 
-    // Check if the sender is already friends with the recipient
-    const existingFriend = sender.friends.find((friend) => friend.user === id);
-    if (existingFriend) {
-      throw new Error("You already sent a friend request to this user!");
+    if (!sender) {
+      throw new Error("the sender user not found")
     }
 
-    // Check if the sender has already sent a friend request to the recipient
-    const existingFriendRequest = sender.friendRequests.find(
-      (friendRequest) => friendRequest.user === id
-    );
+    //check if the sender has already sent a frient request to the recipient
+    const existingFriendRequest = sender.friendRequests.find((friendRequest) => friendRequest.friendUser === id)
+
     if (existingFriendRequest) {
-      return res.status(400).send({
-        message: "You have already sent a friend request to this user!",
-      });
+      throw new Error("You have already sent a friend request to this user")
     }
 
-    // Add the friend request to the sender's friendRequests array
-    sender.friendRequests.push({ user: id });
+    //check if the sender is already a friend with the user 
+    const existingFriend = sender.friends.find((friend) => friend.friendUser === id)
 
-    await sender.save();
+    if (existingFriend) {
+      throw new Error("You are already friend to this user")
+    }
 
-    return res
-      .status(200)
-      .send({ message: "Friend request sent successfully!" });
+    //add the friend request to the recipient friendrequests
+    recipient.friendRequests.push({ friendUser: userId })
+
+    await recipient.save()
+
+    res.status(200).send({ message: "Friend request succcessfully sent" })
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send(error.message)
   }
-};
+}
+//accepting a user friend request
 const acceptFriendRequest = async (req, res) => {
   try {
-    const { id } = req.params; // ID of the user who sent the friend request to be accepted
-    const { userId } = req.user; // ID of the recipient user
+    const { id } = req.params //Id of of the user who sent the friend request to be accepted
+    const { userId } = req.user//id of the current user
 
-    // Check if the recipient user exists
-    const recipient = await User.findById(userId);
-    if (!recipient) {
-      return res
-        .status(404)
-        .send({ message: "The recipient user does not exist!" });
+    const currentUser = await User.findById(userId)
+    const sender = await User.findById(id)
+
+    if (!currentUser && !sender) {
+      throw new Error("User not found")
     }
 
-    const sender = await User.findById(id);
+    console.log(sender._id.toString());
 
-    // Check if there is a friend request from the sender
-    const friendRequest = recipient.friendRequests.find(
-      (friendReq) => friendReq.user === id
-    );
+    const friendRequest = currentUser.friendRequests.find((friendRequest) => friendRequest.friendUser === sender._id.toString())
+
     if (!friendRequest) {
-      return res
-        .status(404)
-        .send({ message: "There is no friend request from this user!" });
+      throw new Error("There is no friend request from this users")
     }
 
-    // Check if the sender is already friends with the recipient
-    const existingFriend = recipient.friends.find(
-      (friend) => friend.user === id
-    );
+    const existingFriend = currentUser.friends.find((friend) => friend.friendUser === sender._id.toString())
+
     if (existingFriend) {
-      return res
-        .status(400)
-        .send({ message: "You are already friends with this user!" });
+      throw new Error("You're arlready friends with this user")
     }
+    //Accept the friend request by adding both users to each other's friends array
+    currentUser.friends.push({ friendUser: id })
+    sender.friends.push({ friendUser: userId })
 
-    // Accept the friend request by adding both users to each other's friends array
-    recipient.friends.push({ user: id });
-    sender.friends.push({ user: userId });
 
-    // Update the friend requests to approved
-    friendRequest.isApproved = true;
+    //Update the friend request to approved
+    friendRequest.isApproved = true
 
-    // Save changes to the sender and recipient documents
-    await Promise.all([sender.save(), recipient.save()]);
+    //save the changes to sender and current user documents
+    await Promise.all([sender.save(), currentUser.save()])
 
     return res
       .status(200)
       .send({ message: "Friend request accepted successfully!" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).send(error.message)
   }
-};
+}
 
 //
 const getAllFriendRequests = async (req, res) => {
@@ -281,13 +274,5 @@ const deleteUser = async (req, res) => {
 };
 
 export {
-  createUser,
-  loginUser,
-  updateUser,
-  updatePassword,
-  getUser,
-  deleteUser,
-  sendFriendRequest,
-  acceptFriendRequest,
-  getAllFriendRequests,
+  createUser, loginUser, updateUser, updatePassword, getUser, deleteUser, sendFriendRequest, acceptFriendRequest, getAllFriendRequests,
 };
