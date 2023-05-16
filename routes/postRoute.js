@@ -8,6 +8,7 @@ import {
   likePost,
   disLikePost,
   deletePost,
+  getUserTimelinePosts,
 } from "../controllers/postController.js";
 
 const router = Router();
@@ -32,5 +33,8 @@ router.post("/:postId/likes", protect, likePost);
 
 // Route for disliking a post by ID
 router.post("/:postId/dislikes", protect, disLikePost);
+
+// Route for getting post based on it's timeline
+router.get("/timeline", protect, getUserTimelinePosts)
 
 export default router;

@@ -23,7 +23,7 @@ router.post("/login", loginUser);
 // Update user profile or Data route
 router.put("/:id", protect, updateUser);
 
-// Delete user route
+// Delete user routeexistingFriendRequest
 router.delete("/:id", protect, deleteUser);
 
 // Get user data route

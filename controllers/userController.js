@@ -249,7 +249,6 @@ const acceptFriendRequest = async (req, res) => {
 const getAllFriendRequests = async (req, res) => {
   try {
     const { userId } = req.user;
-    console.log(userId);
     const user = await User.findById(userId).populate({
       path: "friendRequests.friendUser",
       select: "username profile",
